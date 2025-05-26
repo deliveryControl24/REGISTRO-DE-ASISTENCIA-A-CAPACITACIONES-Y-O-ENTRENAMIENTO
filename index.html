@@ -47,7 +47,7 @@
       gap: 10px;
     }
 
-    input[type="text"], input[type="date"] {
+    input[type="text"], input[type="date"], input[type="password"] {
       width: 100%;
       padding: 6px;
       border: 1px solid #000;
@@ -96,72 +96,124 @@
     .botones-exportar button {
       margin: 5px;
     }
+
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .login-form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-form h2 {
+      margin-top: 0;
+    }
+
+    .login-form input {
+      margin-bottom: 10px;
+    }
+
+    .login-form button {
+      width: 100%;
+    }
+
+    .present {
+      color: green;
+      font-weight: bold;
+    }
+
+    .absent {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <div>
-      <h1>REGISTRO DE ASISTENCIA A CAPACITACIONES Y/O ENTRENAMIENTOS</h1>
+  <div class="login-container" id="loginContainer">
+    <div class="login-form">
+      <h2>Login</h2>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button onclick="login()">Iniciar Sesión</button>
     </div>
-    <div class="logo-empresa">
-      <img src="logo.jpg" alt="Logo Empresa">
-    </div>
-  </header>
-
-  <div class="eslogan">
-    Potenciar la Seguridad Industrial; Una Necesidad Innegociable.
   </div>
 
-  <section class="datos-evento">
-    <div>
-      <label>Nombre del Evento:</label>
-      <input type="text" id="evento">
-      <button onclick="editarCampo('evento')">Editar</button>
-    </div>
-    <div>
-      <label>Empresa:</label>
-      <input type="text" id="empresa">
-      <button onclick="editarCampo('empresa')">Editar</button>
-    </div>
-    <div>
-      <label>Fecha:</label>
-      <input type="date" id="fecha">
-    </div>
-    <div>
-      <label>Hora Actual:</label>
-      <input type="text" id="hora" readonly>
-    </div>
-    <button onclick="guardarDatosEvento()">Guardar</button>
-  </section>
+  <div id="appContainer" style="display: none;">
+    <header>
+      <div>
+        <h1>REGISTRO DE ASISTENCIA A CAPACITACIONES Y/O ENTRENAMIENTOS</h1>
+      </div>
+      <div class="logo-empresa">
+        <img src="logo.jpg" alt="Logo Empresa">
+      </div>
+    </header>
 
-  <section class="formulario">
-    <input type="text" id="nombre" placeholder="Nombre del Asistente">
-    <input type="text" id="cedula" placeholder="Cédula">
-    <input type="text" id="cargo" placeholder="Cargo">
-    <br>
-    <button onclick="agregarAsistente()">Agregar</button>
-  </section>
+    <div class="eslogan">
+      Potenciar la Seguridad Industrial; Una Necesidad Innegociable.
+    </div>
 
-  <table id="tablaAsistencia">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Nombre</th>
-        <th>Cédula</th>
-        <th>Cargo</th>
-        <th>Asistencia</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <section class="datos-evento">
+      <div>
+        <label>Nombre del Evento:</label>
+        <input type="text" id="evento">
+        <button onclick="editarCampo('evento')">Editar</button>
+      </div>
+      <div>
+        <label>Empresa:</label>
+        <input type="text" id="empresa">
+        <button onclick="editarCampo('empresa')">Editar</button>
+      </div>
+      <div>
+        <label>Fecha:</label>
+        <input type="date" id="fecha">
+      </div>
+      <div>
+        <label>Hora Actual:</label>
+        <input type="text" id="hora" readonly>
+      </div>
+      <button onclick="guardarDatosEvento()">Guardar</button>
+    </section>
 
-  <div class="botones-exportar">
-    <button onclick="exportarExcel()">Exportar a Excel</button>
-    <button onclick="exportarWord()">Exportar a Word</button>
-    <button onclick="imprimirLista()">Imprimir Lista</button>
-    <button onclick="limpiarDatos()" style="background-color: #ff0000;">Limpiar Datos</button>
+    <section class="formulario">
+      <input type="text" id="nombre" placeholder="Nombre del Asistente">
+      <input type="text" id="cedula" placeholder="Cédula">
+      <input type="text" id="cargo" placeholder="Cargo">
+      <br>
+      <button onclick="agregarAsistente()">Agregar</button>
+    </section>
+
+    <table id="tablaAsistencia">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Cédula</th>
+          <th>Cargo</th>
+          <th>Asistencia</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="botones-exportar">
+      <button onclick="exportarExcel()">Exportar a Excel</button>
+      <button onclick="exportarWord()">Exportar a Word</button>
+      <button onclick="imprimirLista()">Imprimir Lista</button>
+      <button onclick="limpiarDatos()" style="background-color: #ff0000;">Limpiar Datos</button>
+    </div>
   </div>
 
   <script>
@@ -185,17 +237,26 @@
       asistentes.forEach((a, i) => {
         const fila = document.createElement("tr");
 
+        const asistenciaClass = a.asistencia ? "present" : "absent";
+        const asistenciaText = a.asistencia ? "✅" : "❌";
+
         fila.innerHTML = `
           <td>${i + 1}</td>
           <td>${a.nombre}</td>
           <td>${a.cedula}</td>
           <td>${a.cargo}</td>
-          <td><input type="checkbox" ${a.asistencia ? "checked" : ""} onchange="marcarAsistencia(${i}, this.checked)"></td>
+          <td class="${asistenciaClass}" onclick="toggleAsistencia(${i})">${asistenciaText}</td>
           <td><button onclick="editarAsistente(${i})">Editar</button></td>
         `;
 
         tbody.appendChild(fila);
       });
+    }
+
+    function toggleAsistencia(i) {
+      asistentes[i].asistencia = !asistentes[i].asistencia;
+      guardarAsistentes();
+      renderizarTabla();
     }
 
     function agregarAsistente() {
@@ -215,11 +276,6 @@
       document.getElementById("nombre").value = "";
       document.getElementById("cedula").value = "";
       document.getElementById("cargo").value = "";
-    }
-
-    function marcarAsistencia(i, estado) {
-      asistentes[i].asistencia = estado;
-      guardarAsistentes();
     }
 
     function editarCampo(id) {
@@ -291,6 +347,22 @@
       }
     }
 
+    function login() {
+      const password = document.getElementById("password").value;
+
+      // Validar la contraseña
+      if (password === "ASLO2025") {
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("appContainer").style.display = "block";
+        cargarDatosGuardados();
+        actualizarHora();
+        renderizarTabla();
+      } else {
+        alert("Contraseña incorrecta.");
+      }
+    }
+
+    // Inicial
     cargarDatosGuardados();
     actualizarHora();
     renderizarTabla();
