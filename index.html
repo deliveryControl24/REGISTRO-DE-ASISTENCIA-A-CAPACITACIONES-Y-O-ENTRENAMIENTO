@@ -79,7 +79,7 @@
             padding: 10px;
             border: 1px solid #ccc;
         }
-        .language-selector {
+        .theme-selector {
             margin-bottom: 20px;
         }
     </style>
@@ -89,11 +89,11 @@
         <img src="logo.jpg" alt="Logo">
         <h1>Generador de Hojas de Lista</h1>
     </div>
-    <div class="language-selector">
-        <label for="language">Idioma:</label>
-        <select id="language" onchange="changeLanguage()">
-            <option value="es">Español</option>
-            <option value="en">English</option>
+    <div class="theme-selector">
+        <label for="theme">Tema:</label>
+        <select id="theme" onchange="changeTheme()">
+            <option value="light">Claro</option>
+            <option value="dark">Oscuro</option>
         </select>
     </div>
     <div class="form-group">
@@ -134,10 +134,15 @@
         let eventName = '';
         let history = JSON.parse(localStorage.getItem('history')) || [];
 
-        function changeLanguage() {
-            const language = document.getElementById('language').value;
-            // Aquí puedes añadir la lógica para cambiar el idioma de la página
-            alert(`Idioma cambiado a ${language}`);
+        function changeTheme() {
+            const theme = document.getElementById('theme').value;
+            if (theme === 'dark') {
+                document.body.style.backgroundColor = '#333';
+                document.body.style.color = '#fff';
+            } else {
+                document.body.style.backgroundColor = '#fff';
+                document.body.style.color = '#000';
+            }
         }
 
         function validateAndGenerateList() {
