@@ -82,6 +82,12 @@
         .theme-selector {
             margin-bottom: 20px;
         }
+        .history-actions {
+            margin-top: 10px;
+        }
+        .history-actions button {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -212,7 +218,9 @@
                 eventDate,
                 pages,
                 people,
-                date: new Date().toLocaleString()
+                date: new Date().toLocaleString(),
+                notes: '',
+                participants: Array.from({ length: people }, (_, i) => `Persona ${i + 1}`)
             };
             history.push(historyItem);
             localStorage.setItem('history', JSON.stringify(history));
@@ -254,7 +262,7 @@
         function updateHistory() {
             const historyDiv = document.getElementById('history');
             historyDiv.innerHTML = '<h2>Historial de Generación</h2>';
-            history.forEach(item => {
+            history.forEach((item, index) => {
                 historyDiv.innerHTML += `
                     <div class="history-item">
                         <p><strong>Evento:</strong> ${item.eventName}</p>
@@ -262,9 +270,48 @@
                         <p><strong>Fecha y Hora:</strong> ${new Date(item.eventDate).toLocaleString()}</p>
                         <p><strong>Páginas:</strong> ${item.pages}</p>
                         <p><strong>Personas:</strong> ${item.people}</p>
+                        <p><strong>Participantes:</strong> ${item.participants.join(', ')}</p>
                         <p><strong>Generado el:</strong> ${item.date}</p>
+                        <p><strong>Notas:</strong> <input type="text" id="notes-${index}" value="${item.notes}" onchange="updateNotes(${index}, this.value)"></p>
+                        <div class="history-actions">
+                            <button onclick="downloadHistoryItem(${index})">Descargar</button>
+                        </div>
                     </div>
                 `;
+            });
+        }
+
+        function updateNotes(index, notes) {
+            history[index].notes = notes;
+            localStorage.setItem('history', JSON.stringify(history));
+        }
+
+        function downloadHistoryItem(index) {
+            const item = history[index];
+            const historyItemDiv = document.createElement('div');
+            historyItemDiv.innerHTML = `
+                <div class="history-item">
+                    <h2>Registro de Asistencia</h2>
+                    <p><strong>Evento:</strong> ${item.eventName}</p>
+                    <p><strong>Empresa:</strong> ${item.companyName}</p>
+                    <p><strong>Fecha y Hora:</strong> ${new Date(item.eventDate).toLocaleString()}</p>
+                    <p><strong>Páginas:</strong> ${item.pages}</p>
+                    <p><strong>Personas:</strong> ${item.people}</p>
+                    <p><strong>Participantes:</strong> ${item.participants.join(', ')}</p>
+                    <p><strong>Generado el:</strong> ${item.date}</p>
+                    <p><strong>Notas:</strong> ${item.notes}</p>
+                </div>
+            `;
+
+            html2canvas(historyItemDiv, {
+                scale: 2,
+                logging: true,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `historial-${item.eventName}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
             });
         }
 
