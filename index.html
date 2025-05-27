@@ -1,372 +1,271 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registro de Asistencia</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fff200;
-      margin: 0;
-      padding: 0;
-      color: #000;
-    }
-
-    header {
-      background-color: #000;
-      color: #fff200;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    header h1, header h3 {
-      margin: 5px 0;
-    }
-
-    .logo-empresa img {
-      height: 80px;
-    }
-
-    .eslogan {
-      background-color: #000;
-      color: #fff200;
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-
-    .datos-evento {
-      background-color: #fff;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-    }
-
-    input[type="text"], input[type="date"], input[type="password"] {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #000;
-    }
-
-    .formulario {
-      background-color: #fff;
-      padding: 20px;
-    }
-
-    button {
-      background-color: #000;
-      color: #fff200;
-      border: none;
-      padding: 8px 16px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #fff;
-      margin-bottom: 20px;
-    }
-
-    table, th, td {
-      border: 1px solid #000;
-    }
-
-    th {
-      background-color: #000;
-      color: #fff200;
-    }
-
-    td {
-      text-align: center;
-      padding: 8px;
-    }
-
-    .botones-exportar {
-      text-align: center;
-      margin: 20px;
-    }
-
-    .botones-exportar button {
-      margin: 5px;
-    }
-
-    .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.5);
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1000;
-    }
-
-    .login-form {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    .login-form h2 {
-      margin-top: 0;
-    }
-
-    .login-form input {
-      margin-bottom: 10px;
-    }
-
-    .login-form button {
-      width: 100%;
-    }
-
-    .present {
-      color: green;
-      font-weight: bold;
-    }
-
-    .absent {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Asistencia a Capacitaciones y/o Entrenamientos</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 150px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"], input[type="datetime-local"], select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        #listSheet {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            overflow: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .event-info {
+            margin-bottom: 10px;
+        }
+        .preview {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .history {
+            margin-top: 20px;
+        }
+        .history-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .language-selector {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-
-  <div class="login-container" id="loginContainer">
-    <div class="login-form">
-      <h2>Login</h2>
-      <input type="password" id="password" placeholder="Contraseña" required>
-      <button onclick="login()">Iniciar Sesión</button>
+    <div class="header">
+        <img src="logo.jpg" alt="Logo">
+        <h1>Generador de Hojas de Lista</h1>
     </div>
-  </div>
-
-  <div id="appContainer" style="display: none;">
-    <header>
-      <div>
-        <h1>REGISTRO DE ASISTENCIA A CAPACITACIONES Y/O ENTRENAMIENTOS</h1>
-      </div>
-      <div class="logo-empresa">
-        <img src="logo.jpg" alt="Logo Empresa">
-      </div>
-    </header>
-
-    <div class="eslogan">
-      Potenciar la Seguridad Industrial; Una Necesidad Innegociable.
+    <div class="language-selector">
+        <label for="language">Idioma:</label>
+        <select id="language" onchange="changeLanguage()">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+        </select>
     </div>
-
-    <section class="datos-evento">
-      <div>
-        <label>Nombre del Evento:</label>
-        <input type="text" id="evento">
-        <button onclick="editarCampo('evento')">Editar</button>
-      </div>
-      <div>
-        <label>Empresa:</label>
-        <input type="text" id="empresa">
-        <button onclick="editarCampo('empresa')">Editar</button>
-      </div>
-      <div>
-        <label>Fecha:</label>
-        <input type="date" id="fecha">
-      </div>
-      <div>
-        <label>Hora Actual:</label>
-        <input type="text" id="hora" readonly>
-      </div>
-      <button onclick="guardarDatosEvento()">Guardar</button>
-    </section>
-
-    <section class="formulario">
-      <input type="text" id="nombre" placeholder="Nombre del Asistente">
-      <input type="text" id="cedula" placeholder="Cédula">
-      <input type="text" id="cargo" placeholder="Cargo">
-      <br>
-      <button onclick="agregarAsistente()">Agregar</button>
-    </section>
-
-    <table id="tablaAsistencia">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Nombre</th>
-          <th>Cédula</th>
-          <th>Cargo</th>
-          <th>Asistencia</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <div class="botones-exportar">
-      <button onclick="exportarExcel()">Exportar a Excel</button>
-      <button onclick="exportarWord()">Exportar a Word</button>
-      <button onclick="imprimirLista()">Imprimir Lista</button>
-      <button onclick="limpiarDatos()" style="background-color: #ff0000;">Limpiar Datos</button>
+    <div class="form-group">
+        <label for="eventName">Nombre del Evento:</label>
+        <input type="text" id="eventName" name="eventName" required>
     </div>
-  </div>
+    <div class="form-group">
+        <label for="companyName">Nombre de la Empresa:</label>
+        <input type="text" id="companyName" name="companyName" required>
+    </div>
+    <div class="form-group">
+        <label for="eventDate">Fecha y Hora del Evento:</label>
+        <input type="datetime-local" id="eventDate" name="eventDate" required>
+    </div>
+    <div class="form-group">
+        <label for="pages">Número de Páginas:</label>
+        <input type="number" id="pages" name="pages" min="1" required>
+    </div>
+    <div class="form-group">
+        <label for="people">Cantidad de Personas:</label>
+        <input type="number" id="people" name="people" min="1" required>
+    </div>
+    <div class="form-group">
+        <label for="style">Estilo de la Hoja:</label>
+        <select id="style">
+            <option value="default">Default</option>
+            <option value="modern">Modern</option>
+            <option value="classic">Classic</option>
+        </select>
+    </div>
+    <button onclick="validateAndGenerateList()">Generar Hoja de Lista</button>
+    <button onclick="printList()">Imprimir Hoja de Lista</button>
+    <div id="result"></div>
+    <div class="preview" id="preview"></div>
+    <div class="history" id="history"></div>
 
-  <script>
-    let asistentes = JSON.parse(localStorage.getItem("asistentes")) || [];
+    <script>
+        let eventName = '';
+        let history = JSON.parse(localStorage.getItem('history')) || [];
 
-    function actualizarHora() {
-      const ahora = new Date();
-      document.getElementById("hora").value = ahora.toLocaleTimeString();
-    }
+        function changeLanguage() {
+            const language = document.getElementById('language').value;
+            // Aquí puedes añadir la lógica para cambiar el idioma de la página
+            alert(`Idioma cambiado a ${language}`);
+        }
 
-    setInterval(actualizarHora, 1000);
+        function validateAndGenerateList() {
+            const eventNameInput = document.getElementById('eventName').value;
+            const companyName = document.getElementById('companyName').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const pages = document.getElementById('pages').value;
+            const people = document.getElementById('people').value;
 
-    function guardarAsistentes() {
-      localStorage.setItem("asistentes", JSON.stringify(asistentes));
-    }
+            if (!eventNameInput || !companyName || !eventDate || !pages || !people) {
+                alert('Por favor, complete todos los campos obligatorios.');
+                return;
+            }
 
-    function renderizarTabla() {
-      const tbody = document.querySelector("#tablaAsistencia tbody");
-      tbody.innerHTML = "";
+            eventName = eventNameInput;
+            generateList(eventName, companyName, eventDate, pages, people);
+        }
 
-      asistentes.forEach((a, i) => {
-        const fila = document.createElement("tr");
+        function generateList(eventName, companyName, eventDate, pages, people) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div id="listSheet">
+                    <div class="header">
+                        <p>REGISTRO DE ASISTENCIA A CAPACITACIONES Y/O ENTRENAMIENTOS</p>
+                    </div>
+                    <div class="event-info">
+                        <p><strong>Nombre del Evento:</strong> ${eventName}</p>
+                        <p><strong>Nombre de la Empresa:</strong> ${companyName}</p>
+                        <p><strong>Fecha y Hora:</strong> ${new Date(eventDate).toLocaleString()}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Nombre del Asistente</th>
+                                <th># de Cédula</th>
+                                <th>Cargo</th>
+                                <th>Firma</th>
+                                <th>Nota</th>
+                            </tr>
+                        </thead>
+                        <tbody id="peopleList">
+                            <!-- Aquí se generarán las filas de la tabla -->
+                        </tbody>
+                    </table>
+                </div>
+            `;
 
-        const asistenciaClass = a.asistencia ? "present" : "absent";
-        const asistenciaText = a.asistencia ? "✅" : "❌";
+            const peopleList = document.getElementById('peopleList');
+            for (let i = 1; i <= people; i++) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                `;
+                peopleList.appendChild(row);
+            }
 
-        fila.innerHTML = `
-          <td>${i + 1}</td>
-          <td>${a.nombre}</td>
-          <td>${a.cedula}</td>
-          <td>${a.cargo}</td>
-          <td class="${asistenciaClass}" onclick="toggleAsistencia(${i})">${asistenciaText}</td>
-          <td><button onclick="editarAsistente(${i})">Editar</button></td>
-        `;
+            // Guardar en el historial
+            const historyItem = {
+                eventName,
+                companyName,
+                eventDate,
+                pages,
+                people,
+                date: new Date().toLocaleString()
+            };
+            history.push(historyItem);
+            localStorage.setItem('history', JSON.stringify(history));
+            updateHistory();
 
-        tbody.appendChild(fila);
-      });
-    }
+            // Vista previa
+            const previewDiv = document.getElementById('preview');
+            previewDiv.innerHTML = resultDiv.innerHTML;
 
-    function toggleAsistencia(i) {
-      asistentes[i].asistencia = !asistentes[i].asistencia;
-      guardarAsistentes();
-      renderizarTabla();
-    }
+            html2canvas(document.getElementById('listSheet'), {
+                scale: 2,
+                logging: true,
+                useCORS: true
+            }).then(canvas => {
+                resultDiv.appendChild(canvas);
+                const link = document.createElement('a');
+                link.download = `registro-de-asistencia-${eventName}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.textContent = 'Descargar Imagen';
+                resultDiv.appendChild(document.createElement('br'));
+                resultDiv.appendChild(link);
+            });
+        }
 
-    function agregarAsistente() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const cedula = document.getElementById("cedula").value.trim();
-      const cargo = document.getElementById("cargo").value.trim();
+        function printList() {
+            const printContents = document.getElementById('listSheet').innerHTML;
+            const originalContents = document.body.innerHTML;
 
-      if (!nombre || !cedula || !cargo) {
-        alert("Completa todos los campos.");
-        return;
-      }
+            document.body.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1>${eventName}</h1>
+                </div>
+                ${printContents}
+            `;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
 
-      asistentes.push({ nombre, cedula, cargo, asistencia: false });
-      guardarAsistentes();
-      renderizarTabla();
+        function updateHistory() {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = '<h2>Historial de Generación</h2>';
+            history.forEach(item => {
+                historyDiv.innerHTML += `
+                    <div class="history-item">
+                        <p><strong>Evento:</strong> ${item.eventName}</p>
+                        <p><strong>Empresa:</strong> ${item.companyName}</p>
+                        <p><strong>Fecha y Hora:</strong> ${new Date(item.eventDate).toLocaleString()}</p>
+                        <p><strong>Páginas:</strong> ${item.pages}</p>
+                        <p><strong>Personas:</strong> ${item.people}</p>
+                        <p><strong>Generado el:</strong> ${item.date}</p>
+                    </div>
+                `;
+            });
+        }
 
-      document.getElementById("nombre").value = "";
-      document.getElementById("cedula").value = "";
-      document.getElementById("cargo").value = "";
-    }
-
-    function editarCampo(id) {
-      const campo = document.getElementById(id);
-      campo.readOnly = !campo.readOnly;
-      campo.focus();
-    }
-
-    function editarAsistente(i) {
-      const asistente = asistentes[i];
-      document.getElementById("nombre").value = asistente.nombre;
-      document.getElementById("cedula").value = asistente.cedula;
-      document.getElementById("cargo").value = asistente.cargo;
-
-      asistentes.splice(i, 1);
-      guardarAsistentes();
-      renderizarTabla();
-    }
-
-    function guardarDatosEvento() {
-      const evento = document.getElementById("evento").value;
-      const empresa = document.getElementById("empresa").value;
-      localStorage.setItem("evento", evento);
-      localStorage.setItem("empresa", empresa);
-      alert("Datos guardados correctamente.");
-    }
-
-    function cargarDatosGuardados() {
-      document.getElementById("evento").value = localStorage.getItem("evento") || "";
-      document.getElementById("empresa").value = localStorage.getItem("empresa") || "";
-      document.getElementById("fecha").valueAsDate = new Date();
-    }
-
-    function exportarExcel() {
-      const ws = XLSX.utils.json_to_sheet(asistentes.map((a, i) => ({
-        "#": i + 1,
-        Nombre: a.nombre,
-        Cédula: a.cedula,
-        Cargo: a.cargo,
-        Asistencia: a.asistencia ? "Sí" : "No"
-      })));
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Asistencia");
-      XLSX.writeFile(wb, "Asistencia.xlsx");
-    }
-
-    function exportarWord() {
-      const contenido = document.getElementById("tablaAsistencia").outerHTML;
-      const blob = new Blob([contenido], { type: "application/msword" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Asistencia.doc";
-      a.click();
-    }
-
-    function imprimirLista() {
-      window.print();
-    }
-
-    function limpiarDatos() {
-      if (confirm("¿Estás seguro de que deseas limpiar todos los datos?")) {
-        localStorage.clear();
-        asistentes = [];
-        renderizarTabla();
-        document.getElementById("evento").value = "";
-        document.getElementById("empresa").value = "";
-        document.getElementById("fecha").value = "";
-      }
-    }
-
-    function login() {
-      const password = document.getElementById("password").value;
-
-      // Validar la contraseña
-      if (password === "ASLO2025") {
-        document.getElementById("loginContainer").style.display = "none";
-        document.getElementById("appContainer").style.display = "block";
-        cargarDatosGuardados();
-        actualizarHora();
-        renderizarTabla();
-      } else {
-        alert("Contraseña incorrecta.");
-      }
-    }
-
-    // Inicial
-    cargarDatosGuardados();
-    actualizarHora();
-    renderizarTabla();
-  </script>
-
+        // Cargar historial al cargar la página
+        updateHistory();
+    </script>
 </body>
 </html>
+
