@@ -88,6 +88,9 @@
         .history-actions button {
             margin-right: 10px;
         }
+        .clear-history {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -135,6 +138,9 @@
     <div id="result"></div>
     <div class="preview" id="preview"></div>
     <div class="history" id="history"></div>
+    <div class="clear-history">
+        <button onclick="clearHistory()">Limpiar Historial</button>
+    </div>
 
     <script>
         let eventName = '';
@@ -313,6 +319,14 @@
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
+        }
+
+        function clearHistory() {
+            if (confirm('¿Estás seguro de que deseas limpiar el historial? Esta acción no se puede deshacer.')) {
+                history = [];
+                localStorage.setItem('history', JSON.stringify(history));
+                updateHistory();
+            }
         }
 
         // Cargar historial al cargar la página
